@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #f0f0f0;
+            height: 100vh;
+            padding: 20px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+        .sidebar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            transition: background-color 0.3s;
+        }
+        .sidebar button:hover {
+            background-color: #e0e0e0;
+        }
+        .main-content {
+            flex-grow: 1;
+        }
+        .top-bar {
+            background-color: #03a9f4;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .menu-icon, .more-icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .icons-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 10px;
+            font-size: 24px;
+            color: white;
+        }
+        .icon-blue { background-color: #03a9f4; }
+        .icon-red { background-color: #f44336; }
+        .icon-orange { background-color: #ff9800; }
+        .icon-grey { background-color: #9e9e9e; }
+
+        /* Add User Form Styles */
+        .add-user-form {
+            max-width: 500px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .add-user-form h2 {
+            text-align: center;
+            color: #333;
+        }
+        .add-user-form form {
+            display: flex;
+            flex-direction: column;
+        }
+        .add-user-form label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .add-user-form input, .add-user-form textarea {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .add-user-form button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #03a9f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-user-form button:hover {
+            background-color: #0288d1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Home Assistant</h2>
+            <ul>
+                <li><button onclick="changePage('overview')">Overview</button></li>
+                <li><button onclick="changePage('Add User')">Add User</button></li>
+                <li><button onclick="changePage('Check Attendance')">Check Attendance</button></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="menu-icon">☰</div>
+                <h2 id="pageTitle">Home</h2>
+                <div class="more-icon">⋮</div>
+            </div>
+            <div id="pageContent" class="icons-container">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function changePage(page) {
+            const pageTitle = document.getElementById('pageTitle');
+            const pageContent = document.getElementById('pageContent');
+
+            // Update the page title
+            pageTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1);
+
+            // Clear current content
+            pageContent.innerHTML = '';
+
+            // Add new content based on the selected page
+            switch(page) {
+                case 'overview':
+                    pageContent.innerHTML = '<h2>Overview </h2>';
+                    break;
+                case 'Add User':
+                    pageContent.innerHTML = `
+                        <div class="add-user-form">
+                            <h2>Add User</h2>
+                            <form id="addUserForm">
+                                <label for="name">Name:</label>
+                                <input type="text" id="name" name="name" required>
+
+                                <label for="age">Age:</label>
+                                <input type="number" id="age" name="age" required>
+
+                                <label for="address">Address:</label>
+                                <textarea id="address" name="address" rows="3" required></textarea>
+
+                                <label for="position">Position:</label>
+                                <input type="text" id="position" name="position" required>
+
+                                <button type="submit">Add User</button>
+                            </form>
+                        </div>
+                    `;
+                    // Add event listener for form submission
+                    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const name = document.getElementById('name').value;
+                        const age = document.getElementById('age').value;
+                        const address = document.getElementById('address').value;
+                        const position = document.getElementById('position').value;
+
+                        console.log('User added:', { name, age, address, position });
+                        this.reset();
+                        alert('User added successfully!');
+                    });
+                    break;
+                case 'Check Attendance':
+                    pageContent.innerHTML = '<h2>Check Attendance</h2>';
+                    break;
+                default:
+                    pageContent.innerHTML = '<h2>Page not found</h2>';
+            }
+        }
+    </script>
+</body>
+</html>
