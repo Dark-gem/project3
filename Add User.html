@@ -9,9 +9,11 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
+            height: 100%;
         }
         .container {
             display: flex;
+            height: 100%;
         }
         .sidebar {
             width: 250px;
@@ -39,8 +41,15 @@
         .sidebar button:hover {
             background-color: #e0e0e0;
         }
+        .sidebar .active {
+            background-color: #d0d0d0;
+            font-weight: bold;
+        }
         .main-content {
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
         .top-bar {
             background-color: #03a9f4;
@@ -55,8 +64,10 @@
             cursor: pointer;
         }
         .icons-container {
+            flex-grow: 1;
             display: flex;
             justify-content: center;
+            align-items: center;
             padding: 20px;
         }
         .icon {
@@ -75,13 +86,39 @@
         .icon-orange { background-color: #ff9800; }
         .icon-grey { background-color: #9e9e9e; }
 
-        /* Add User Form Styles */
-        .add-user-form {
-            max-width: 500px;
+        .camera-container {
+            position: relative;
+            width: 640px;
+            height: 480px;
             margin: 20px auto;
-            background: #fff;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        #cameraFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .face-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Enhanced styles for add user form */
+        .add-user-form {
+            max-width: 600px;
+            margin: 0 auto;
             padding: 20px;
-            border-radius: 5px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .add-user-form h2 {
@@ -89,41 +126,66 @@
             color: #333;
         }
         .add-user-form form {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            gap: 15px;
         }
         .add-user-form label {
-            margin-top: 10px;
             font-weight: bold;
+            color: #555;
         }
-        .add-user-form input, .add-user-form textarea {
-            padding: 8px;
-            margin-top: 5px;
+        .add-user-form input[type="text"],
+        .add-user-form input[type="number"],
+        .add-user-form textarea {
+            width: 100%;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 16px;
         }
-        .add-user-form button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #03a9f4;
+        .add-user-form textarea {
+            resize: vertical;
+        }
+        .add-user-form button[type="submit"] {
+            background-color: #4CAF50;
             color: white;
+            padding: 12px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
-        .add-user-form button:hover {
-            background-color: #0288d1;
+        .add-user-form button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .camera-container {
+            margin-top: 20px;
+        }
+
+        /* Styles for enlarged video container */
+        .video-container {
+            width: 90%;
+            height: 600px;
+            margin: 0 auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
-            <h2>Home Assistant</h2>
+            <h2>Dash Board</h2>
             <ul>
-                <li><button onclick="changePage('overview')">Overview</button></li>
-                <li><button onclick="changePage('Add User')">Add User</button></li>
-                <li><button onclick="changePage('Check Attendance')">Check Attendance</button></li>
+                <li><button id="overview-btn" onclick="changePage('overview')">Overview</button></li>
+                <li><button id="add-user-btn" onclick="changePage('Add User')">Add User</button></li>
+                <li><button id="check-attendance-btn" onclick="changePage('Check Attendance')">Check Attendance</button></li>
             </ul>
         </div>
         <div class="main-content">
@@ -138,63 +200,147 @@
     </div>
 
     <script>
+        const MAX_IMAGES = 5;
+        let capturedImages = [];
+        let stream = null;
+
         function changePage(page) {
             const pageTitle = document.getElementById('pageTitle');
             const pageContent = document.getElementById('pageContent');
 
-            // Update the page title
             pageTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1);
-
-            // Clear current content
             pageContent.innerHTML = '';
 
-            // Add new content based on the selected page
             switch(page) {
                 case 'overview':
-                    pageContent.innerHTML = '<h2>Overview </h2>';
+                    pageContent.innerHTML = `
+                        <div class="video-container">
+                            <iframe src="http://192.168.100.63" allowfullscreen></iframe>
+                        </div>
+                    `;
                     break;
                 case 'Add User':
                     pageContent.innerHTML = `
                         <div class="add-user-form">
                             <h2>Add User</h2>
-                            <form id="addUserForm">
-                                <label for="name">Name:</label>
-                                <input type="text" id="name" name="name" required>
-
-                                <label for="age">Age:</label>
-                                <input type="number" id="age" name="age" required>
-
-                                <label for="address">Address:</label>
-                                <textarea id="address" name="address" rows="3" required></textarea>
-
-                                <label for="position">Position:</label>
-                                <input type="text" id="position" name="position" required>
-
-                                <button type="submit">Add User</button>
-                            </form>
+                           <form onSubmit="submitForm(event)">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required>
+        <label for="mobile_no">Mobile no:</label>
+        <input type="number" id="mobile_no" name="mobile_no" required>
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" rows="3" required></textarea>
+        <label for="position">Position:</label>
+        <input type="text" id="position" name="position" required>
+        <label for="images">Images:</label>
+        <input type="file" id="images" name="images" multiple>
+        <button type="submit">Submit</button>
+    </form>
+                            <div class="camera-container">
+                                <video id="cameraFeed" autoplay></video>
+                                <div class="face-frame"></div>
+                            </div>
+                            <button id="startCamera" onclick="startCamera()">Start Camera</button>
+                            <button id="captureImage" onclick="captureImage()" style="display: none;">Capture Image</button>
+                            <div id="imageThumbnails"></div>
                         </div>
                     `;
-                    // Add event listener for form submission
-                    document.getElementById('addUserForm').addEventListener('submit', function(e) {
-                        e.preventDefault();
-
-                        const name = document.getElementById('name').value;
-                        const age = document.getElementById('age').value;
-                        const address = document.getElementById('address').value;
-                        const position = document.getElementById('position').value;
-
-                        console.log('User added:', { name, age, address, position });
-                        this.reset();
-                        alert('User added successfully!');
-                    });
                     break;
                 case 'Check Attendance':
-                    pageContent.innerHTML = '<h2>Check Attendance</h2>';
+                    pageContent.innerHTML = `
+
+                    `;
+                    startCamera();
                     break;
-                default:
-                    pageContent.innerHTML = '<h2>Page not found</h2>';
             }
         }
+
+        function startCamera() {
+            const video = document.getElementById('cameraFeed');
+            navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+                document.getElementById('startCamera').style.display = 'none';
+                document.getElementById('captureImage').style.display = 'inline-block';
+            })
+            .catch(function(err) {
+                console.log("An error occurred: " + err);
+            });
+        }
+
+        function captureImage() {
+            if (capturedImages.length >= MAX_IMAGES) {
+                alert(`You can only capture up to ${MAX_IMAGES} images.`);
+                return;
+            }
+
+            const video = document.getElementById('cameraFeed');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = canvas.toDataURL('image/jpeg');
+            capturedImages.push(imageData);
+
+            const thumbnailContainer = document.getElementById('imageThumbnails');
+            const thumbnail = document.createElement('img');
+            thumbnail.src = imageData;
+            thumbnail.className = 'image-thumbnail';
+            thumbnailContainer.appendChild(thumbnail);
+
+            updateCaptureButton();
+
+            if (capturedImages.length >= MAX_IMAGES) {
+                stopCamera();
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                document.getElementById('cameraFeed').srcObject = null;
+                document.getElementById('startCamera').style.display = 'inline-block';
+                document.getElementById('captureImage').style.display = 'none';
+            }
+        }
+
+        function updateCaptureButton() {
+            const captureButton = document.getElementById('captureImage');
+            captureButton.textContent = `Capture Image (${capturedImages.length}/${MAX_IMAGES})`;
+            captureButton.disabled = capturedImages.length >= MAX_IMAGES;
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch('/add_user', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    form.reset();
+                } else if (data.error) {
+                    alert(`Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the user.');
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            changePage('overview');
+        });
     </script>
 </body>
-</html>
+</html>'
