@@ -1,3 +1,3 @@
-def handle_form_submission(form_data):
-    # Process the form data here
-    return {"status": "success", "message": "Form processed successfully"}
+import sys
+sys.path.insert(0, 'path_to_yolov5')  # Replace with the correct path
+from models.common import DetectMultiBackend

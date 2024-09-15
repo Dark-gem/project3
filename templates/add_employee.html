@@ -1,10 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employee</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 80%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .success-message {
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+        }
+        input[type="text"],
+        input[type="file"],
+        input[type="submit"],
+        input[type="email"],
+        input[type="time"],
+        select {
+            margin-top: 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
-$END$
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Live Stream</a>
+        <a href="{{ url_for('add_employee') }}">Add Employee</a>
+        <a href="{{ url_for('report') }}">Report</a>
+    </div>
+
+    <div class="container">
+        <h1>Add Employee</h1>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form id="employeeForm" action="{{ url_for('add_employee') }}" method="POST" enctype="multipart/form-data">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="position">Position:</label>
+            <input type="text" id="position" name="position" required>
+
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phone" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="job_type">Job Type:</label>
+            <select id="job_type" name="job_type" required onchange="updateJobType()">
+                <option value="">Select Job Type</option>
+                <option value="full_time">Full Time</option>
+                <option value="part_time">Part Time</option>
+            </select>
+
+            <div id="time_fields" style="display: none;">
+                <label for="checkin_time">Check-in Time:</label>
+                <input type="time" id="checkin_time" name="checkin_time">
+
+                <label for="checkout_time">Checkout Time:</label>
+                <input type="time" id="checkout_time" name="checkout_time">
+            </div>
+
+            <label for="photo">Photo:</label>
+            <input type="file" id="photo" name="photo" accept="image/*" required>
+
+            <input type="submit" value="Add Employee">
+        </form>
+    </div>
+
+    <script>
+        function updateJobType() {
+            const jobType = document.getElementById('job_type').value;
+            const timeFields = document.getElementById('time_fields');
+
+            if (jobType === 'part_time') {
+                timeFields.style.display = 'block';
+            } else {
+                timeFields.style.display = 'none';
+            }
+        }
+
+        // Initialize form state
+        document.addEventListener('DOMContentLoaded', () => {
+            updateJobType();
+        });
+    </script>
 </body>
 </html>
