@@ -1,10 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9ecef;
+        }
+        .navbar {
+            background-color: #343a40;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .navbar a:hover {
+            background-color: #495057;
+            color: #f8f9fa;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 90%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #343a40;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #343a40;
+            color: white;
+        }
+        td {
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 <body>
-$END$
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Live Stream</a>
+        <a href="{{ url_for('add_employee') }}">Add Employee</a>
+        <a href="{{ url_for('report') }}">Report</a>
+    </div>
+
+    <div class="container">
+        <h1>Attendance Report</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Check-in Time</th>
+                    <th>Check-out Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr>
+                    <td>{{ record.employee_name }}</td>
+                    <td>{{ record.checkin_time }}</td>
+                    <td>{{ record.checkout_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
