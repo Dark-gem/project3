@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Video Feed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9ecef;
+        }
+        .navbar {
+            background-color: #343a40;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .navbar a:hover {
+            background-color: #495057;
+            color: #f8f9fa;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 90%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #343a40;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #495057;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+            color: #495057;
+        }
+        select, input[type="text"], button {
+            font-size: 16px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .camera-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .camera-frame {
+            flex: 1 1 calc(100% / 2 - 30px); /* Adjust this value if needed */
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            max-width: 1200px; /* Increase the maximum width */
+            max-height: 700px; /* Increase the maximum height */
+            min-width: 600px;  /* Set a minimum width */
+            min-height: 400px; /* Set a minimum height */
+            margin: 10px; /* Add margin for spacing */
+        }
+
+        .camera-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures that the video covers the frame properly */
+            border-radius: 8px;
+        }
+
+        .no-camera {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background-color: #f8d7da;
+            color: #721c24;
+            font-size: 18px;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Live Stream</a>
+        <a href="{{ url_for('add_employee') }}">Add Employee</a>
+        <a href="{{ url_for('report') }}">Report</a>
+    </div>
+
+    <div class="container">
+        <h1>Live Video Feed</h1>
+        <form method="post" action="{{ url_for('update_cameras') }}">
+            <label for="num_cameras">Select number of cameras:</label>
+            <select id="num_cameras" name="num_cameras" onchange="this.form.submit()">
+                {% for i in range(1, 11) %}
+                    <option value="{{ i }}" {% if num_cameras == i %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
+        </form>
+
+        {% if num_cameras %}
+            <form method="post" action="{{ url_for('update_cameras') }}">
+                <input type="hidden" name="num_cameras" value="{{ num_cameras }}">
+                <h2>Enter Camera URLs</h2>
+                {% for i in range(num_cameras) %}
+                    <label for="camera_url_{{ i }}">Camera {{ i + 1 }} URL:</label>
+                    <input type="text" id="camera_url_{{ i }}" name="camera_url_{{ i }}"
+                           value="{{ camera_urls[i] if camera_urls[i] else '' }}" placeholder="Enter URL">
+                {% endfor %}
+                <button type="submit">Submit URLs</button>
+            </form>
+        {% endif %}
+
+        <div class="camera-container">
+            {% for i in range(num_cameras) %}
+            <div class="camera-frame">
+                {% if camera_urls[i] %}
+                    <img src="{{ url_for('video_feed', camera_id=i) }}" alt="Camera {{ i + 1 }}">
+                {% else %}
+                    <div class="no-camera">No Camera Found</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
